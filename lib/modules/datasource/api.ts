@@ -1,3 +1,4 @@
+import { AlpineDatasource } from './alpine';
 import { ArtifactoryDatasource } from './artifactory';
 import { AwsMachineImageDatasource } from './aws-machine-image';
 import { AwsRdsDatasource } from './aws-rds';
@@ -71,6 +72,7 @@ import { Unity3dDatasource } from './unity3d';
 const api = new Map<string, DatasourceApi>();
 export default api;
 
+api.set(AlpineDatasource.id, new AlpineDatasource());
 api.set(ArtifactoryDatasource.id, new ArtifactoryDatasource());
 api.set(AwsMachineImageDatasource.id, new AwsMachineImageDatasource());
 api.set(AwsRdsDatasource.id, new AwsRdsDatasource());
