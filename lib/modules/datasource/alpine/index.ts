@@ -13,6 +13,7 @@ import { cacheSubDir, packageKeys, requiredPackageKeys } from './common';
 import { extract, getFileCreationTime } from './file';
 import { formatReleaseResult } from './release';
 import type { PackageDescription } from './types';
+import * as packageCache from '../../../util/cache/package';
 
 export class AlpineDatasource extends Datasource {
   static readonly id = 'alpine';
@@ -165,13 +166,17 @@ export class AlpineDatasource extends Datasource {
     const indexUrlHash = toSha256(indexUrl);
     const fullCacheDir = await fs.ensureCacheDir(cacheSubDir);
     const extractedFile = upath.join(fullCacheDir, `${indexUrlHash}.txt`);
-    let lastTimestamp = await getFileCreationTime(extractedFile);
+    let lastTimestamp = await packageCache.get(
+      `datasource-${AlpineDatasource.id}`,
+      indexUrl + '-timestamp',
+    );
 
     const compression = 'tar.gz';
     const compressedFile = upath.join(
       fullCacheDir,
       `${nanoid()}_${indexUrlHash}.${compression}`,
     );
+    const dateNowUnix = new Date().getTime();
 
     const wasUpdated = await this.downloadIndexFile(
       indexUrl,
@@ -181,6 +186,12 @@ export class AlpineDatasource extends Datasource {
     );
 
     if (wasUpdated || !lastTimestamp) {
+      packageCache.set(
+        `datasource-${AlpineDatasource.id}`,
+        indexUrl + '-timestamp',
+        dateNowUnix,
+        24 * 60,
+      );
       try {
         await extract(compressedFile, compression, extractedFile);
         lastTimestamp = await getFileCreationTime(extractedFile);
