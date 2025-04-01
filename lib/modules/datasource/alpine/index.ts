@@ -2,6 +2,7 @@ import readline from 'readline';
 import { nanoid } from 'nanoid';
 import upath from 'upath';
 import { logger } from '../../../logger';
+import * as packageCache from '../../../util/cache/package';
 import { cache } from '../../../util/cache/package/decorator';
 import * as fs from '../../../util/fs';
 import { toSha256 } from '../../../util/hash';
@@ -13,7 +14,6 @@ import { cacheSubDir, packageKeys, requiredPackageKeys } from './common';
 import { extract } from './file';
 import { formatReleaseResult } from './release';
 import type { PackageDescription } from './types';
-import * as packageCache from '../../../util/cache/package';
 
 export class AlpineDatasource extends Datasource {
   static readonly id = 'alpine';
@@ -170,8 +170,8 @@ export class AlpineDatasource extends Datasource {
       `datasource-${AlpineDatasource.id}`,
       indexUrl + '-timestamp',
     );
-    if (lastTimestamp_utc == undefined) {
-      lastTimestamp_utc = new Date().toUTCString();
+    if (lastTimestamp_utc === undefined) {
+      lastTimestamp_utc = new Date(Date.UTC(0, 0, 0, 0, 0, 0));
     }
 
     let lastTimestamp = new Date(lastTimestamp_utc);
@@ -191,7 +191,7 @@ export class AlpineDatasource extends Datasource {
     );
 
     if (wasUpdated || !lastTimestamp) {
-      packageCache.set(
+      await packageCache.set(
         `datasource-${AlpineDatasource.id}`,
         indexUrl + '-timestamp',
         dateNowUtc.toUTCString(),
