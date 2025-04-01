@@ -2,6 +2,7 @@ import readline from 'readline';
 import { nanoid } from 'nanoid';
 import upath from 'upath';
 import { logger } from '../../../logger';
+import * as packageCache from '../../../util/cache/package';
 import { cache } from '../../../util/cache/package/decorator';
 import * as fs from '../../../util/fs';
 import { toSha256 } from '../../../util/hash';
@@ -11,7 +12,7 @@ import { Datasource } from '../datasource';
 import type { GetReleasesConfig, ReleaseResult } from '../types';
 import { computeFileChecksum, parseChecksumsFromInRelease } from './checksum';
 import { cacheSubDir, packageKeys, requiredPackageKeys } from './common';
-import { extract, getFileCreationTime } from './file';
+import { extract } from './file';
 import { formatReleaseResult, releaseMetaInformationMatches } from './release';
 import type { PackageDescription } from './types';
 import { constructComponentUrls, getBaseReleaseUrl } from './url';
@@ -70,14 +71,22 @@ export class DebDatasource extends Datasource {
     const packageUrlHash = toSha256(componentUrl);
     const fullCacheDir = await fs.ensureCacheDir(cacheSubDir);
     const extractedFile = upath.join(fullCacheDir, `${packageUrlHash}.txt`);
-    let lastTimestamp = await getFileCreationTime(extractedFile);
+    let lastTimestamp_utc = await packageCache.get(
+      `datasource-${DebDatasource.id}`,
+      componentUrl + '-timestamp',
+    );
+    if (lastTimestamp_utc === undefined) {
+      lastTimestamp_utc = new Date(Date.UTC(0, 0, 0, 0, 0, 0));
+    }
 
+    let lastTimestamp = new Date(lastTimestamp_utc);
     const compression = 'gz';
     const compressedFile = upath.join(
       fullCacheDir,
       `${nanoid()}_${packageUrlHash}.${compression}`,
     );
 
+    const dateNowUtc = new Date();
     const wasUpdated = await this.downloadPackageFile(
       componentUrl,
       compression,
@@ -88,7 +97,13 @@ export class DebDatasource extends Datasource {
     if (wasUpdated || !lastTimestamp) {
       try {
         await extract(compressedFile, compression, extractedFile);
-        lastTimestamp = await getFileCreationTime(extractedFile);
+        await packageCache.set(
+          `datasource-${DebDatasource.id}`,
+          componentUrl + '-timestamp',
+          dateNowUtc.toUTCString(),
+          24 * 60,
+        );
+        lastTimestamp = dateNowUtc;
       } catch (error) {
         logger.warn(
           {
