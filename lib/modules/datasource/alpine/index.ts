@@ -2,10 +2,7 @@ import readline from 'readline';
 import { nanoid } from 'nanoid';
 import upath from 'upath';
 import { logger } from '../../../logger';
-<<<<<<< HEAD
 import * as packageCache from '../../../util/cache/package';
-=======
->>>>>>> 9aa6ff8a0 (feat(): new alpine datasource)
 import { cache } from '../../../util/cache/package/decorator';
 import * as fs from '../../../util/fs';
 import { toSha256 } from '../../../util/hash';
@@ -14,11 +11,7 @@ import { joinUrlParts } from '../../../util/url';
 import { Datasource } from '../datasource';
 import type { GetReleasesConfig, ReleaseResult } from '../types';
 import { cacheSubDir, packageKeys, requiredPackageKeys } from './common';
-<<<<<<< HEAD
 import { extract } from './file';
-=======
-import { extract, getFileCreationTime } from './file';
->>>>>>> 9aa6ff8a0 (feat(): new alpine datasource)
 import { formatReleaseResult } from './release';
 import type { PackageDescription } from './types';
 
