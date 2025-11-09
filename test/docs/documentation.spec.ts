@@ -199,41 +199,6 @@ describe('docs/documentation', () => {
           getCacheNamespacesFromDocs('self-hosted-configuration.md'),
         ).toEqual(getExpectedCacheNamespaces());
       });
-
-      function getCacheNamespacesFromDocs(file: string): string[] {
-        const content = fs.readFileSync(`docs/usage/${file}`, 'utf8');
-        const beginMarker = '<!-- cache-namespaces-begin -->';
-        const endMarker = '<!-- cache-namespaces-end -->';
-
-        const beginIndex = content.indexOf(beginMarker);
-        const endIndex = content.indexOf(endMarker);
-
-        if (beginIndex === -1 || endIndex === -1) {
-          return [];
-        }
-
-        const cacheNamespacesSection = content.substring(
-          beginIndex + beginMarker.length,
-          endIndex,
-        );
-        const matches = cacheNamespacesSection.match(/- `([^`]+)`/g) ?? [];
-
-        return matches
-          .map((match) => match.substring(3, match.length - 1))
-          .sort();
-      }
-
-      function getExpectedCacheNamespaces(): string[] {
-        return packageCacheNamespaces
-          .filter((namespace) => namespace !== '_test-namespace')
-          .sort();
-      }
-
-      it('has complete cache namespaces list', () => {
-        expect(
-          getCacheNamespacesFromDocs('self-hosted-configuration.md'),
-        ).toEqual(getExpectedCacheNamespaces());
-      });
     });
 
     describe('docs/usage/self-hosted-experimental.md', () => {

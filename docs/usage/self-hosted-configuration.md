@@ -362,8 +362,6 @@ Other valid cache namespaces are as follows:
 
 <!-- cache-namespaces-begin -->
 
-<!-- cache-namespaces-begin -->
-
 - `changelog-bitbucket-notes@v2`
 - `changelog-bitbucket-release`
 - `changelog-bitbucket-server-notes@v2`
