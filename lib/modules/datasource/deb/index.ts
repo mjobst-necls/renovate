@@ -1,5 +1,6 @@
 import readline from 'readline';
 import { logger } from '../../../logger';
+import * as packageCache from '../../../util/cache/package';
 import { cache } from '../../../util/cache/package/decorator';
 import * as fs from '../../../util/fs';
 import { Datasource } from '../datasource';
